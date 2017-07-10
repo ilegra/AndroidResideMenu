@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Rect;
-import android.os.Build;
 import android.util.DisplayMetrics;
 import android.view.*;
 import android.view.animation.AnimationUtils;
@@ -191,10 +190,6 @@ public class ResideMenu extends FrameLayout {
         viewDecor.removeViewAt(0);
         viewActivity.setContent(mContent);
         addView(viewActivity);
-
-        ViewGroup parent = (ViewGroup) scrollViewLeftMenu.getParent();
-        parent.removeView(scrollViewLeftMenu);
-        parent.removeView(scrollViewRightMenu);
     }
 
     private void setShadowAdjustScaleXByOrientation() {
@@ -436,8 +431,6 @@ public class ResideMenu extends FrameLayout {
             } else {
                 viewActivity.setTouchDisable(false);
                 viewActivity.setOnClickListener(null);
-                hideScrollViewMenu(scrollViewLeftMenu);
-                hideScrollViewMenu(scrollViewRightMenu);
                 if (menuListener != null)
                     menuListener.closeMenu();
             }
@@ -467,7 +460,8 @@ public class ResideMenu extends FrameLayout {
         AnimatorSet scaleDown = new AnimatorSet();
         scaleDown.playTogether(
                 ObjectAnimator.ofFloat(target, "scaleX", targetScaleX),
-                ObjectAnimator.ofFloat(target, "scaleY", targetScaleY)
+                ObjectAnimator.ofFloat(target, "scaleY", targetScaleY),
+                ObjectAnimator.ofFloat(target, "translationX", getScreenWidth() * 0.6f)
         );
 
         if (mUse3D) {
@@ -477,6 +471,7 @@ public class ResideMenu extends FrameLayout {
 
         scaleDown.setInterpolator(AnimationUtils.loadInterpolator(activity,
                 android.R.anim.decelerate_interpolator));
+
         scaleDown.setDuration(250);
         return scaleDown;
     }
@@ -494,7 +489,8 @@ public class ResideMenu extends FrameLayout {
         AnimatorSet scaleUp = new AnimatorSet();
         scaleUp.playTogether(
                 ObjectAnimator.ofFloat(target, "scaleX", targetScaleX),
-                ObjectAnimator.ofFloat(target, "scaleY", targetScaleY)
+                ObjectAnimator.ofFloat(target, "scaleY", targetScaleY),
+                ObjectAnimator.ofFloat(target, "translationX", 0f)
         );
 
         if (mUse3D) {
@@ -631,7 +627,6 @@ public class ResideMenu extends FrameLayout {
                     }
                     ViewHelper.setScaleX(viewActivity, targetScale);
                     ViewHelper.setScaleY(viewActivity, targetScale);
-                    ViewHelper.setAlpha(scrollViewMenu, (1 - targetScale) * 2.0f);
 
                     lastRawX = ev.getRawX();
                     return true;
