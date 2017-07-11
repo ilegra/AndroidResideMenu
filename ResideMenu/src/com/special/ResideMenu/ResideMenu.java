@@ -36,9 +36,7 @@ public class ResideMenu extends FrameLayout {
     private ImageView imageViewShadow;
     private ImageView imageViewBackground;
     private LinearLayout layoutLeftMenu;
-    private LinearLayout layoutRightMenu;
     private View scrollViewLeftMenu;
-    private View scrollViewRightMenu;
     private View scrollViewMenu;
     /**
      * Current attaching activity.
@@ -76,7 +74,7 @@ public class ResideMenu extends FrameLayout {
 
     public ResideMenu(Context context) {
         super(context);
-        initViews(context, -1, -1);
+        initViews(context, -1);
     }
 
     /**
@@ -84,14 +82,12 @@ public class ResideMenu extends FrameLayout {
      * layouts, but if you use custom menu then do not call addMenuItem because
      * it will not be able to find default views
      */
-    public ResideMenu(Context context, int customLeftMenuId,
-                      int customRightMenuId) {
+    public ResideMenu(Context context, int customLeftMenuId) {
         super(context);
-        initViews(context, customLeftMenuId, customRightMenuId);
+        initViews(context, customLeftMenuId);
     }
 
-    private void initViews(Context context, int customLeftMenuId,
-                           int customRightMenuId) {
+    private void initViews(Context context, int customLeftMenuId) {
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.residemenu_custom, this);
@@ -104,20 +100,11 @@ public class ResideMenu extends FrameLayout {
             layoutLeftMenu = (LinearLayout) scrollViewLeftMenu.findViewById(R.id.layout_left_menu);
         }
 
-        if (customRightMenuId >= 0) {
-            scrollViewRightMenu = inflater.inflate(customRightMenuId, this, false);
-        } else {
-            scrollViewRightMenu = inflater.inflate(
-                    R.layout.residemenu_custom_right_scrollview, this, false);
-            layoutRightMenu = (LinearLayout) scrollViewRightMenu.findViewById(R.id.layout_right_menu);
-        }
-
         imageViewShadow = (ImageView) findViewById(R.id.iv_shadow);
         imageViewBackground = (ImageView) findViewById(R.id.iv_background);
 
         RelativeLayout menuHolder = (RelativeLayout) findViewById(R.id.sv_menu_holder);
         menuHolder.addView(scrollViewLeftMenu);
-        menuHolder.addView(scrollViewRightMenu);
     }
 
     /**
@@ -125,13 +112,6 @@ public class ResideMenu extends FrameLayout {
      */
     public View getLeftMenuView() {
         return scrollViewLeftMenu;
-    }
-
-    /**
-     * Returns right menu view so you can findViews and do whatever you want with
-     */
-    public View getRightMenuView() {
-        return scrollViewRightMenu;
     }
 
     @Override
@@ -244,13 +224,8 @@ public class ResideMenu extends FrameLayout {
      * @param direction
      */
     public void addMenuItem(ResideMenuItem menuItem, int direction) {
-        if (direction == DIRECTION_LEFT) {
-            this.leftMenuItems.add(menuItem);
-            layoutLeftMenu.addView(menuItem);
-        } else {
-            this.rightMenuItems.add(menuItem);
-            layoutRightMenu.addView(menuItem);
-        }
+        this.leftMenuItems.add(menuItem);
+        layoutLeftMenu.addView(menuItem);
     }
 
     /**
@@ -271,10 +246,7 @@ public class ResideMenu extends FrameLayout {
      * @param direction
      */
     public void setMenuItems(List<ResideMenuItem> menuItems, int direction) {
-        if (direction == DIRECTION_LEFT)
-            this.leftMenuItems = menuItems;
-        else
-            this.rightMenuItems = menuItems;
+        this.leftMenuItems = menuItems;
         rebuildMenu();
     }
 
@@ -283,12 +255,6 @@ public class ResideMenu extends FrameLayout {
             layoutLeftMenu.removeAllViews();
             for (ResideMenuItem leftMenuItem : leftMenuItems)
                 layoutLeftMenu.addView(leftMenuItem);
-        }
-
-        if (layoutRightMenu != null) {
-            layoutRightMenu.removeAllViews();
-            for (ResideMenuItem rightMenuItem : rightMenuItems)
-                layoutRightMenu.addView(rightMenuItem);
         }
     }
 
@@ -308,10 +274,7 @@ public class ResideMenu extends FrameLayout {
      * @return
      */
     public List<ResideMenuItem> getMenuItems(int direction) {
-        if (direction == DIRECTION_LEFT)
-            return leftMenuItems;
-        else
-            return rightMenuItems;
+        return leftMenuItems;
     }
 
     /**
@@ -376,18 +339,11 @@ public class ResideMenu extends FrameLayout {
     }
 
     private void setScaleDirection(int direction) {
-
         int screenWidth = getScreenWidth();
-        float pivotX;
         float pivotY = getScreenHeight() * 0.5f;
 
-        if (direction == DIRECTION_LEFT) {
-            scrollViewMenu = scrollViewLeftMenu;
-            pivotX = screenWidth * 1.5f;
-        } else {
-            scrollViewMenu = scrollViewRightMenu;
-            pivotX = screenWidth * -0.5f;
-        }
+        scrollViewMenu = scrollViewLeftMenu;
+        float pivotX = screenWidth * 1.5f;
 
         ViewHelper.setPivotX(viewActivity, pivotX);
         ViewHelper.setPivotY(viewActivity, pivotY);
